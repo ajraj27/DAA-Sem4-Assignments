@@ -1,0 +1,122 @@
+longest increasing subsequence O(NlogN)
+
+Consider an input array A = {2, 5, 3}
+By observation we know that the LIS is either {2, 3} or {2, 5}
+
+Let us add two more elements, say 7, 11 to the array. These 
+elements will extend the existing sequences. Now the increasing 
+sequences are {2, 3, 7, 11} and {2, 5, 7, 11} for the input 
+array {2, 5, 3, 7, 11}
+
+Further, we add one more element, say 8 to the array i.e. input 
+array becomes {2, 5, 3, 7, 11, 8}. Note that the latest element 
+8 is greater than smallest element of any active sequence (will 
+discuss shortly about active sequences). How can we extend the 
+existing sequences with 8? First of all, can 8 be part of LIS? 
+If yes, how? If we want to add 8, it should come after 7 (by 
+replacing 11)
+
+we are not sure whether adding 8 will extend the series or not.
+Assume there is 9 in the input array,say{2, 5, 3, 7, 11, 8, 7, 9 …}.
+We can replace 11 with 8, as there is potentially best candidate
+ (9) that can extend the new series {2, 3, 7, 8} or {2, 5, 7, 8}.
+
+Our observation is, when checking for the newest element A[i] 
+there are three possible cases:
+assume that the end element of largest sequence is E. 
+1. We can add current element A[i] to the existing 
+   sequence if there is an element A[j] (j > i) such that 
+   E < A[i] < A[j]
+
+2. We can replace E with current element A[i] if 
+   (E > A[i] < A[j] – for replace). 
+ 
+	In the above example, E = 11, A[i] = 8 and A[j] = 9.
+	thus E will be replaced with A[i].
+
+	The question is, when will it be safe to add or 
+	replace an element in the existing sequence?
+
+	Let us consider another sample A = {2, 5, 3}. Say, 
+	the next element is 1. How can it extend the current
+	sequences {2, 3} or {2, 5}. Obviously, it can’t 
+	extend either. Yet, there is a potential that the 
+	new smallest element can be start of an LIS. To 
+	make it clear, consider the array is {2,5,3,1,2,3,4,5,6}.
+	Making 1 as new sequence will create new sequence 
+	which is largest.
+
+3. The observation is, when we encounter new smallest 
+   element in the array, it can be a potential candidate
+   to start new sequence.
+
+From the observations, we need to maintain lists of increasing sequences.
+
+In general, we have set of active lists of varying length. 
+We are adding an element A[i] to these lists. We scan the lists 
+(for end elements) in decreasing order of their length. We will 
+verify the end elements of all thelists to find a list whose end 
+element is smaller than A[i] (floor value).
+
+Our strategy determined by the following conditions,
+
+1. If A[i] is smallest among all end 
+   candidates of active lists, we will start 
+   new active list of length 1.
+
+2. If A[i] is largest among all end candidates of 
+  active lists, we will clone the largest active 
+  list, and extend it by A[i].
+
+
+3. If A[i] is in between, we will find a list with 
+  largest end element that is smaller than A[i]. 
+  Clone and extend this list by A[i]. We will discard all
+  other lists of same length as that of this modified list.
+
+  The length of the Longest Increasing Subsequence:
+
+   This is easy as we do not need to maintain the whole list of 
+   acitve lists.All We need is to maintain a list(array) of end 
+   elements of the active lists.Initialise the list with 
+   A[0].i.e list[0] = A[0] and length = 1(length is list length)
+   for each A[i]  i : 1 to n-1(end of A) will follow the 
+   above strategy.
+
+   strategy 1 is followed with replacement of first element 
+   of list(array) with A[i].
+   strategy 2 is followed with addition of A[i] at the 
+   end of list(array).
+   strategy 3 is followed with binary search of the least 
+   upper bound of A[i] in the list(array) followed by its 
+   replacement with A[i].
+
+   At the end length of the list is the length of 
+   longest increasing subsequence.
+
+  The construction of Longest Increasing Subsequence:
+
+   For construction in NlogN the idea is to maintain a two arrays.
+   One previousIndices array and another tailIndices array.
+   TailIndices contains inputArrayIndex of end element of the 
+   active lists. This array is similar to the list in the previous 
+   algorithm of length of LIS.(InputArrayIndex of E means position 
+   of E in the input Array.)previousIndices stores previous value 
+   of the current operated tailIndices element.
+   prevIndices[i] = tailIndices[pos-1];
+   where pos is the position of the current operated tailIndices.
+   Operation means the three operations discussed in the previous 
+   algorithm.
+   i.e. for each A[i] i:1 to n(end of A)
+   pos is the position of tailIndidces found by Algo 1 and operated 
+   accordingly.
+   then , prevIndices[i] = tailIndices[pos-1].
+
+   The LIS is extracted by backtracking of previous Indices As:
+
+	i = tailIndices[len-1]//last element
+   while(i != -1)
+	   LIS.push_back(A[i])
+	   i = prevIndices[i]
+	end
+	LIS is in reverse order.
